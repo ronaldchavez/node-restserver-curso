@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
 const Usuario = require('../models/usuario');
+const { verificaToken, verificaAdminRole } = require('../middlewares/autenticacion');
 const _ = require('underscore');
 
-app.get('/usuario', function (req, res) {
+app.get('/usuario', verificaToken, (req, res) => {
 
 	let desde = req.query.desde || 0;
 	desde = Number(desde);
@@ -39,7 +40,7 @@ app.get('/usuario', function (req, res) {
 });
 
 
-app.post('/usuario', function (req, res) {
+app.post('/usuario',[verificaToken, verificaAdminRole],  (req, res) => {
 
 	let body = req.body;
 
@@ -67,7 +68,7 @@ app.post('/usuario', function (req, res) {
 
 });
 
-app.put('/usuario/:id', function (req, res) {
+app.put('/usuario/:id',[verificaToken, verificaAdminRole], (req, res) => {
 
 	let id = req.params.id;
 
@@ -91,7 +92,7 @@ app.put('/usuario/:id', function (req, res) {
   	
 });
 
-app.delete('/usuario/:id', function (req, res) {
+app.delete('/usuario/:id', [verificaToken, verificaAdminRole], (req, res) => {
 
   let id = req.params.id;
 
@@ -102,7 +103,7 @@ app.delete('/usuario/:id', function (req, res) {
 	Usuario.findByIdAndUpdate( id, body, (err, usuarioBorrado) => {
 
 		if(err){
-			return res.status(400).json({
+			return res.status(500).json({
 				ok: false,
 				err
 			});	
